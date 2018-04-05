@@ -1,46 +1,38 @@
 package com.example.devsmar.simplemvpnews.ui;
 
+
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.devsmar.simplemvpnews.R;
 import com.example.devsmar.simplemvpnews.adapter.NewsListAdapter;
 import com.example.devsmar.simplemvpnews.di.Aplication.NewsApplication;
-import com.example.devsmar.simplemvpnews.di.Component.DaggerNewsComponent;
-import com.example.devsmar.simplemvpnews.di.Component.NewsComponent;
 import com.example.devsmar.simplemvpnews.di.MainActivityFeatures.DaggerMainActivityComponent;
-import com.example.devsmar.simplemvpnews.di.MainActivityFeatures.MainActivityComponent;
 import com.example.devsmar.simplemvpnews.di.MainActivityFeatures.MainActivityModule;
-import com.example.devsmar.simplemvpnews.di.Module.ContextModule;
 import com.example.devsmar.simplemvpnews.mvp.model.Articles;
 import com.example.devsmar.simplemvpnews.mvp.model.RxjavaService;
 import com.example.devsmar.simplemvpnews.mvp.presenter.NewsPresenter;
 import com.example.devsmar.simplemvpnews.mvp.view.MainView;
-import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit2.Retrofit;
-
-public class MainActivity extends AppCompatActivity implements MainView {
+public class MainActivity extends AppCompatActivity implements MainView, NewsListAdapter.OnClickListener {
 
     RecyclerView recyclerView;
-    Picasso picasso;
     ProgressBar progressBar;
-    Context context;
-    EditText editText;
-    TextView empty_text;
+    EditText search_text;
+    View mikki_view;
     Button button;
 
     //----------------------------Dagger 2
@@ -48,24 +40,22 @@ public class MainActivity extends AppCompatActivity implements MainView {
     RxjavaService service;
     @Inject
     NewsListAdapter mAdapter;
+    @Inject
+    NewsPresenter presenter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        context = this;
 
         renderView();
         init();
 
-        MainActivityComponent mainActivityComponent = DaggerMainActivityComponent.builder()
-                .mainActivityModule(new MainActivityModule(this))
+        DaggerMainActivityComponent.builder()
+                .mainActivityModule(new MainActivityModule(this, this, this))
                 .newsComponent(NewsApplication.get(this).getNewsComponent())
-                .build();
-
-        mainActivityComponent.injectMainActivity(this);
-
+                .build().injectMainActivity(this);
 
     }
 
@@ -76,20 +66,34 @@ public class MainActivity extends AppCompatActivity implements MainView {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                empty_text.setVisibility(View.GONE);
+                if (!isEmpty()) {
+                    mikki_view.setVisibility(View.GONE);
+                    presenter.getNewsList(search_text.getText().toString());
 
-                NewsPresenter presenter = new NewsPresenter(service, MainActivity.this);
-                presenter.getNewsList(editText.getText().toString());
+                    View view = MainActivity.this.getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+
+                } else {
+                    Snackbar.make(recyclerView, "Type something bro !!!.", Snackbar.LENGTH_LONG).show();
+                }
             }
         });
+
+    }
+
+    private boolean isEmpty() {
+        return search_text.getText().toString() == null || search_text.getText().toString().isEmpty();
     }
 
     private void renderView() {
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
-        editText = findViewById(R.id.edit_text);
+        search_text = findViewById(R.id.edit_text);
         button = findViewById(R.id.button);
-        empty_text = findViewById(R.id.empty_text);
+        mikki_view = findViewById(R.id.mikki_view);
     }
 
     @Override
@@ -104,14 +108,23 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void onFailure(String appErrorMessage) {
-        empty_text.setVisibility(View.VISIBLE);
-        empty_text.setText(appErrorMessage);
+        Snackbar.make(recyclerView, appErrorMessage, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
     public void getNewsListSuccess(Articles articles) {
-        mAdapter.setItems(articles.getArticles());
-        recyclerView.setAdapter(mAdapter);
-        Log.i("fuck","result success");
+        if (articles.getArticles().size() > 0) {
+            mAdapter.setItems(articles.getArticles());
+            recyclerView.setAdapter(mAdapter);
+        } else {
+            Snackbar.make(recyclerView, "Sorry, there is no Data.", Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onClick(int position, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url.toString()));
+        startActivity(intent);
     }
 }

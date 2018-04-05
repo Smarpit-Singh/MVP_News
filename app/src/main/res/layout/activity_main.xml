@@ -43,11 +43,26 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
 
-    <TextView
-        android:id="@+id/empty_text"
+    <RelativeLayout
+        android:id="@+id/mikki_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Search any Topic"
-        android:textSize="20sp" />
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:id="@+id/mikki_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/mikki_background" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mikki_pic"
+            android:text="Search any Topic" />
+
+    </RelativeLayout>
+
+
 </RelativeLayout>
