@@ -5,10 +5,7 @@ import android.util.Log;
 
 import com.example.devsmar.simplemvpnews.utils.NetworkError;
 
-import java.util.List;
-
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,7 +29,7 @@ public class RxjavaService {
 
 
     public Subscription getNews(String q, final GetNewsCallback getNewsCallback) {
-        Log.i("fuck","service called");
+        Log.i("stuck", "service called");
         return newsRestService.getNewsBySearch(q,"8dca7dea475e41e49518b2c61131e118",100)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -45,20 +42,21 @@ public class RxjavaService {
                 .subscribe(new Subscriber<Articles>() {
                     @Override
                     public void onCompleted() {
-                        Log.i("fuck","pura");
+                        Log.i("stuck", "complete");
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         getNewsCallback.onError(new NetworkError(e));
-                        Log.i("fuck",e.getMessage());
+                        Log.i("stuck", e.getMessage());
                     }
 
                     @Override
                     public void onNext(Articles articles) {
                         getNewsCallback.onSuccess(articles);
-                        Log.i("fuck","Onnext");
+                        Log.i("stuck", "Onnext");
                     }
                 });
+
     }
 }

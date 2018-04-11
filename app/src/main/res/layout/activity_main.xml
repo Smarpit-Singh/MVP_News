@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/edit_text"
-        android:layout_margin="5dp" />
+        android:layout_marginTop="10dp" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

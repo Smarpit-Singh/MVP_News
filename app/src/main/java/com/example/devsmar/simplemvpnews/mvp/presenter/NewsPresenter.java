@@ -8,8 +8,6 @@ import com.example.devsmar.simplemvpnews.mvp.model.RxjavaService;
 import com.example.devsmar.simplemvpnews.mvp.view.MainView;
 import com.example.devsmar.simplemvpnews.utils.NetworkError;
 
-import java.util.List;
-
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
@@ -39,9 +37,10 @@ public class NewsPresenter {
             public void onError(NetworkError networkError) {
                 view.removeWait();
                 view.onFailure(networkError.getAppErrorMessage());
-                Log.i("fuck",networkError.getMessage());
+                Log.i("huh", networkError.getMessage());
             }
         });
+
 
         subscriptions.add(subscription);
     }

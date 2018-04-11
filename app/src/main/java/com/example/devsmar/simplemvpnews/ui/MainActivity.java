@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements MainView, NewsLis
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         progressBar.setVisibility(View.GONE);
 
+        hideKeyboard();
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,18 +72,20 @@ public class MainActivity extends AppCompatActivity implements MainView, NewsLis
                     mikki_view.setVisibility(View.GONE);
                     presenter.getNewsList(search_text.getText().toString());
 
-                    View view = MainActivity.this.getCurrentFocus();
-                    if (view != null) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-
                 } else {
-                    Snackbar.make(recyclerView, "Type something bro !!!.", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(recyclerView, "Type something buddy !!!.", Snackbar.LENGTH_LONG).show();
                 }
             }
         });
 
+    }
+
+    private void hideKeyboard() {
+        View view = MainActivity.this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private boolean isEmpty() {
